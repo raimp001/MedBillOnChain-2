@@ -119,9 +119,9 @@ export default function MedicalBillingComponent() {
     }
   };
 
-  const initiatePayment = () => {
-    // Keep the existing payment logic
-    alert('Payment functionality remains unchanged');
+  const submitBill = () => {
+    console.log('Submitting bill:', { patientInfo, services, notes, total });
+    alert('Bill submitted successfully!');
   };
 
   return (
@@ -203,9 +203,9 @@ export default function MedicalBillingComponent() {
         <button
           type="button"
           style={styles.button}
-          onClick={initiatePayment}
+          onClick={submitBill}
         >
-          Pay ${total.toFixed(2)}
+          Submit Bill (${total.toFixed(2)})
         </button>
       </div>
     </div>
