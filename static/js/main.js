@@ -140,25 +140,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                const { sessionId } = await response.json();
-                // Implement Coinbase CDP payment flow
-                const cdpInstance = new CDP({
-                    sessionId: sessionId,
-                    onPaymentDetected: () => {
-                        alert('Payment detected! The page will refresh once the payment is confirmed.');
-                    },
-                    onPaymentSuccess: () => {
-                        alert('Payment successful!');
-                        loadBillingRecords(); // Refresh the records list
-                    },
-                    onPaymentError: (error) => {
-                        console.error('Payment error:', error);
-                        alert('Payment failed. Please try again.');
-                    },
-                });
-                cdpInstance.show();
+                const { chargeId, hostedUrl } = await response.json();
+                // Open the Coinbase Commerce hosted checkout page
+                window.open(hostedUrl, '_blank');
+                
+                // You may want to implement a way to check the payment status periodically
+                // and update the UI accordingly. For now, we'll just reload the records
+                // after a short delay.
+                setTimeout(() => {
+                    loadBillingRecords();
+                }, 5000);
             } else {
-                console.error('Failed to create CDP session');
+                console.error('Failed to create payment session');
                 alert('Failed to initiate payment. Please try again.');
             }
         } catch (error) {

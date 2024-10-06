@@ -11,4 +11,5 @@ dependencies = [
     "flask-migrate>=4.0.7",
     "coinbase-commerce>=1.0.1",
     "requests>=2.32.3",
+    "python-dotenv",
 ]

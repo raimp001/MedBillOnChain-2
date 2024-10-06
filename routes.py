@@ -1,10 +1,16 @@
+import os
 from flask import jsonify, request, render_template, redirect, url_for
 from app import app, db
 from models import BillingRecord
 from sqlalchemy import func
-import os
 import requests
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+from coinbase_commerce.client import Client
+from coinbase_commerce.webhook import Webhook
+from coinbase_commerce.error import SignatureVerificationError, WebhookInvalidPayload
+
+load_dotenv()
 
 @app.route('/')
 def index():
@@ -62,7 +68,6 @@ def analytics():
     paid_records = BillingRecord.query.filter_by(paid=True).count()
     crypto_payments = db.session.query(func.sum(BillingRecord.amount)).filter_by(paid=True).scalar() or 0
     
-    # Get data for the chart
     amount_ranges = [0, 100, 500, 1000, 5000, float('inf')]
     labels = ['$0-$100', '$100-$500', '$500-$1000', '$1000-$5000', '$5000+']
     data = []
@@ -72,7 +77,6 @@ def analytics():
                                            BillingRecord.amount < amount_ranges[i+1]).count()
         data.append(count)
 
-    # Get data for specific cryptocurrencies
     crypto_data = {
         'USDC': db.session.query(func.count(BillingRecord.id)).filter_by(paid=True, payment_currency='USDC').scalar() or 0,
         'ETH': db.session.query(func.count(BillingRecord.id)).filter_by(paid=True, payment_currency='ETH').scalar() or 0,
@@ -80,7 +84,6 @@ def analytics():
         'DOGE': db.session.query(func.count(BillingRecord.id)).filter_by(paid=True, payment_currency='DOGE').scalar() or 0
     }
 
-    # Get billing amount trend data
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
     billing_trend = db.session.query(
         func.date(BillingRecord.date).label('date'),
@@ -90,7 +93,6 @@ def analytics():
     billing_trend_labels = [record.date.strftime('%Y-%m-%d') for record in billing_trend]
     billing_trend_data = [float(record.total_amount) for record in billing_trend]
 
-    # Get top 5 highest billing amounts
     top_5_bills = BillingRecord.query.order_by(BillingRecord.amount.desc()).limit(5).all()
 
     return render_template('analytics.html', 
@@ -110,46 +112,44 @@ def analytics():
 def create_cdp_session(record_id):
     record = BillingRecord.query.get_or_404(record_id)
     
-    # Replace with your actual Coinbase CDP API endpoint and credentials
-    cdp_api_url = 'https://api.coinbase.com/v2/cdp/sessions'
-    cdp_api_key = os.environ.get('COINBASE_CDP_API_KEY')
+    client = Client(api_key=os.environ.get('COINBASE_CDP_API_KEY'))
     
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {cdp_api_key}'
-    }
-    
-    payload = {
-        'local_price': {
+    charge = client.charge.create(
+        name=f'Medical Bill Payment - Record #{record.id}',
+        description=f'Payment for medical services: {record.service_description}',
+        pricing_type='fixed_price',
+        local_price={
             'amount': str(record.amount),
             'currency': 'USD'
         },
-        'metadata': {
+        metadata={
             'record_id': record.id
         }
-    }
+    )
     
-    try:
-        response = requests.post(cdp_api_url, json=payload, headers=headers)
-        response.raise_for_status()
-        session_data = response.json()
-        return jsonify({'sessionId': session_data['id']}), 200
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify({'chargeId': charge.id, 'hostedUrl': charge.hosted_url}), 200
 
 @app.route('/cdp_webhook', methods=['POST'])
 def cdp_webhook():
-    # Implement CDP webhook handling here
-    # Verify the webhook signature and update the payment status
-    # This will depend on the specific requirements of the Coinbase CDP API
-    data = request.json
-    record_id = data['metadata']['record_id']
-    payment_currency = data['payment']['crypto']['currency']
+    webhook_secret = os.environ.get('COINBASE_COMMERCE_WEBHOOK_SECRET')
     
-    record = BillingRecord.query.get(record_id)
-    if record:
-        record.paid = True
-        record.payment_currency = payment_currency
-        db.session.commit()
+    try:
+        event = Webhook.construct_event(
+            request.data, request.headers.get('X-CC-Webhook-Signature', ''), webhook_secret
+        )
+    except (SignatureVerificationError, WebhookInvalidPayload) as e:
+        app.logger.error(f"Webhook error: {str(e)}")
+        return '', 400
+
+    if event['type'] == 'charge:confirmed':
+        charge = event['data']
+        record_id = charge['metadata']['record_id']
+        payment_currency = charge['payments'][0]['value']['crypto']['currency']
+        
+        record = BillingRecord.query.get(record_id)
+        if record:
+            record.paid = True
+            record.payment_currency = payment_currency
+            db.session.commit()
     
     return '', 200
