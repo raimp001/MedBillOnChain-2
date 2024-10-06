@@ -16,8 +16,10 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 db.init_app(app)
 
+from models import BillingRecord  # Import the model
+
 with app.app_context():
-    db.create_all()
+    db.create_all()  # This will create all tables
 
 from routes import *
 
