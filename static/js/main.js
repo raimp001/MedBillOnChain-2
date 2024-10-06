@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>Date:</strong> ${record.date}</p>
                     <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="editRecord(${record.id})">Edit</button>
                     <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="deleteRecord(${record.id})">Delete</button>
-                    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="initiatePayment(${record.id}, ${record.amount})">Pay with Crypto</button>
+                    ${!record.paid ? `<button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="initiatePayment(${record.id}, ${record.amount})">Pay with Crypto</button>` : '<span class="text-green-600 font-bold">Paid</span>'}
                 `;
                 recordsList.appendChild(li);
             });
@@ -141,14 +141,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 const { sessionId } = await response.json();
-                // Implement Coinbase CDP payment flow here
-                console.log('Payment initiated with session ID:', sessionId);
-                alert('Payment initiated. Please complete the process in the Coinbase window.');
+                // Implement Coinbase CDP payment flow
+                const cdpInstance = new CDP({
+                    sessionId: sessionId,
+                    onPaymentDetected: () => {
+                        alert('Payment detected! The page will refresh once the payment is confirmed.');
+                    },
+                    onPaymentSuccess: () => {
+                        alert('Payment successful!');
+                        loadBillingRecords(); // Refresh the records list
+                    },
+                    onPaymentError: (error) => {
+                        console.error('Payment error:', error);
+                        alert('Payment failed. Please try again.');
+                    },
+                });
+                cdpInstance.show();
             } else {
                 console.error('Failed to create CDP session');
+                alert('Failed to initiate payment. Please try again.');
             }
         } catch (error) {
             console.error('Error:', error);
+            alert('An error occurred while initiating the payment. Please try again.');
         }
     };
 });
