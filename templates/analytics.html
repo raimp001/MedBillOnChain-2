@@ -3,70 +3,74 @@
 {% block title %}Analytics - Medical Billing App{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-4">Analytics Dashboard</h1>
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8 text-indigo-800">Analytics Dashboard</h1>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Total Records</h2>
-        <p class="text-3xl">{{ total_records }}</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-indigo-700">Total Records</h2>
+            <p class="text-3xl font-bold">{{ total_records }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-indigo-700">Total Amount Billed</h2>
+            <p class="text-3xl font-bold">${{ "%.2f"|format(total_amount) }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-indigo-700">Average Billing Amount</h2>
+            <p class="text-3xl font-bold">${{ "%.2f"|format(avg_amount) }}</p>
+        </div>
     </div>
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Total Amount Billed</h2>
-        <p class="text-3xl">${{ "%.2f"|format(total_amount) }}</p>
-    </div>
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Average Billing Amount</h2>
-        <p class="text-3xl">${{ "%.2f"|format(avg_amount) }}</p>
-    </div>
-</div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Paid Invoices</h2>
-        <p class="text-3xl">{{ paid_records }}</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-indigo-700">Paid Invoices</h2>
+            <p class="text-3xl font-bold">{{ paid_records }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-2 text-indigo-700">Total Crypto Payments</h2>
+            <p class="text-3xl font-bold">${{ "%.2f"|format(crypto_payments) }}</p>
+        </div>
     </div>
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Total Crypto Payments</h2>
-        <p class="text-3xl">${{ "%.2f"|format(crypto_payments) }}</p>
-    </div>
-</div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-4">Cryptocurrency Payment Distribution</h2>
-        <canvas id="cryptoDistributionChart"></canvas>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-700">Cryptocurrency Payment Distribution</h2>
+            <canvas id="cryptoDistributionChart"></canvas>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-700">Billing Amount Distribution</h2>
+            <canvas id="billingChart"></canvas>
+        </div>
     </div>
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-4">Billing Amount Distribution</h2>
-        <canvas id="billingChart"></canvas>
+
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-indigo-700">Billing Amount Trend</h2>
+        <canvas id="billingTrendChart"></canvas>
     </div>
-</div>
 
-<div class="bg-white p-4 rounded shadow mb-8">
-    <h2 class="text-xl font-bold mb-4">Billing Amount Trend</h2>
-    <canvas id="billingTrendChart"></canvas>
-</div>
-
-<div class="bg-white p-4 rounded shadow mb-8">
-    <h2 class="text-xl font-bold mb-4">Top 5 Highest Billing Amounts</h2>
-    <table class="w-full">
-        <thead>
-            <tr>
-                <th class="text-left">Patient Name</th>
-                <th class="text-left">Amount</th>
-                <th class="text-left">Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for record in top_5_bills %}
-            <tr>
-                <td>{{ record.patient_name }}</td>
-                <td>${{ "%.2f"|format(record.amount) }}</td>
-                <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-indigo-700">Top 5 Highest Billing Amounts</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-indigo-100">
+                        <th class="py-2 px-4 text-left">Patient Name</th>
+                        <th class="py-2 px-4 text-left">Amount</th>
+                        <th class="py-2 px-4 text-left">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in top_5_bills %}
+                    <tr class="border-b">
+                        <td class="py-2 px-4">{{ record.patient_name }}</td>
+                        <td class="py-2 px-4">${{ "%.2f"|format(record.amount) }}</td>
+                        <td class="py-2 px-4">{{ record.date.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -80,8 +84,8 @@
             datasets: [{
                 label: 'Number of Records',
                 data: {{ chart_data | tojson }},
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                borderColor: 'rgba(99, 102, 241, 1)',
                 borderWidth: 1
             }]
         },
@@ -119,16 +123,16 @@
                     {{ crypto_data['DOGE'] }}
                 ],
                 backgroundColor: [
-                    'rgba(75, 192, 192, 0.6)',
-                    'rgba(153, 102, 255, 0.6)',
-                    'rgba(255, 159, 64, 0.6)',
-                    'rgba(255, 99, 132, 0.6)'
+                    'rgba(99, 102, 241, 0.6)',
+                    'rgba(167, 139, 250, 0.6)',
+                    'rgba(251, 146, 60, 0.6)',
+                    'rgba(251, 191, 36, 0.6)'
                 ],
                 borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 99, 132, 1)'
+                    'rgba(99, 102, 241, 1)',
+                    'rgba(167, 139, 250, 1)',
+                    'rgba(251, 146, 60, 1)',
+                    'rgba(251, 191, 36, 1)'
                 ],
                 borderWidth: 1
             }]
@@ -157,7 +161,7 @@
                 label: 'Billing Amount',
                 data: {{ billing_trend_data | tojson }},
                 fill: false,
-                borderColor: 'rgb(75, 192, 192)',
+                borderColor: 'rgb(99, 102, 241)',
                 tension: 0.1
             }]
         },

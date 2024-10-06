@@ -53,16 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
             recordsList.innerHTML = '';
             records.forEach(record => {
                 const li = document.createElement('li');
-                li.className = 'mb-4 p-4 bg-white rounded shadow';
+                li.className = 'mb-4 p-4 bg-white rounded-lg shadow-md transition duration-300 hover:shadow-lg';
                 li.innerHTML = `
-                    <p><strong>Patient:</strong> ${record.patient_name}</p>
-                    <p><strong>Medical Record Number:</strong> ${record.medical_record_number}</p>
-                    <p><strong>Service:</strong> ${record.service_description}</p>
-                    <p><strong>Amount:</strong> $${record.amount.toFixed(2)}</p>
-                    <p><strong>Date:</strong> ${record.date}</p>
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="editRecord(${record.id})">Edit</button>
-                    <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="deleteRecord(${record.id})">Delete</button>
-                    ${!record.paid ? `<button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="initiatePayment(${record.id}, ${record.amount})">Pay with Crypto</button>` : '<span class="text-green-600 font-bold">Paid</span>'}
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-semibold text-indigo-700">${record.patient_name}</h3>
+                        <span class="text-sm text-gray-500">${record.date}</span>
+                    </div>
+                    <p class="mb-2"><strong class="text-gray-700">Medical Record Number:</strong> ${record.medical_record_number}</p>
+                    <p class="mb-2"><strong class="text-gray-700">Service:</strong> ${record.service_description}</p>
+                    <p class="mb-4"><strong class="text-gray-700">Amount:</strong> $${record.amount.toFixed(2)}</p>
+                    <div class="flex justify-end space-x-2">
+                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300" onclick="editRecord(${record.id})">Edit</button>
+                        <button class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300" onclick="deleteRecord(${record.id})">Delete</button>
+                        ${!record.paid ? `<button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300" onclick="initiatePayment(${record.id}, ${record.amount})">Pay with Crypto</button>` : '<span class="text-green-600 font-semibold">Paid</span>'}
+                    </div>
                 `;
                 recordsList.appendChild(li);
             });
