@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(billingForm);
         const record = {
             patient_name: formData.get('patient_name'),
+            medical_record_number: formData.get('medical_record_number'),
             service_description: formData.get('service_description'),
             amount: parseFloat(formData.get('amount'))
         };
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.className = 'mb-4 p-4 bg-white rounded shadow';
             li.innerHTML = `
                 <p><strong>Patient:</strong> ${record.patient_name}</p>
+                <p><strong>Medical Record Number:</strong> ${record.medical_record_number}</p>
                 <p><strong>Service:</strong> ${record.service_description}</p>
                 <p><strong>Amount:</strong> $${record.amount.toFixed(2)}</p>
                 <p><strong>Date:</strong> ${record.date}</p>
@@ -68,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const record = await response.json();
         
         document.getElementById('patient_name').value = record.patient_name;
+        document.getElementById('medical_record_number').value = record.medical_record_number;
         document.getElementById('service_description').value = record.service_description;
         document.getElementById('amount').value = record.amount;
         
@@ -76,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(billingForm);
             const updatedRecord = {
                 patient_name: formData.get('patient_name'),
+                medical_record_number: formData.get('medical_record_number'),
                 service_description: formData.get('service_description'),
                 amount: parseFloat(formData.get('amount'))
             };

@@ -12,6 +12,7 @@ def billing_records():
         data = request.json
         new_record = BillingRecord(
             patient_name=data['patient_name'],
+            medical_record_number=data['medical_record_number'],
             service_description=data['service_description'],
             amount=data['amount']
         )
@@ -32,6 +33,7 @@ def billing_record(record_id):
     elif request.method == 'PUT':
         data = request.json
         record.patient_name = data['patient_name']
+        record.medical_record_number = data['medical_record_number']
         record.service_description = data['service_description']
         record.amount = data['amount']
         db.session.commit()
