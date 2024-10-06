@@ -2,13 +2,9 @@ from flask import jsonify, request, render_template, redirect, url_for
 from app import app, db
 from models import BillingRecord
 from sqlalchemy import func
-from coinbase_commerce.client import Client
-from coinbase_commerce.error import SignatureVerificationError, WebhookInvalidPayload
-from coinbase_commerce.webhook import Webhook
 import os
-
-coinbase_commerce_api_key = os.environ.get('COINBASE_COMMERCE_API_KEY')
-coinbase_client = Client(api_key=coinbase_commerce_api_key)
+import requests
+from datetime import datetime, timedelta
 
 @app.route('/')
 def index():
@@ -76,6 +72,27 @@ def analytics():
                                            BillingRecord.amount < amount_ranges[i+1]).count()
         data.append(count)
 
+    # Get data for specific cryptocurrencies
+    crypto_data = {
+        'USDC': db.session.query(func.count(BillingRecord.id)).filter_by(paid=True, payment_currency='USDC').scalar() or 0,
+        'ETH': db.session.query(func.count(BillingRecord.id)).filter_by(paid=True, payment_currency='ETH').scalar() or 0,
+        'BTC': db.session.query(func.count(BillingRecord.id)).filter_by(paid=True, payment_currency='BTC').scalar() or 0,
+        'DOGE': db.session.query(func.count(BillingRecord.id)).filter_by(paid=True, payment_currency='DOGE').scalar() or 0
+    }
+
+    # Get billing amount trend data
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    billing_trend = db.session.query(
+        func.date(BillingRecord.date).label('date'),
+        func.sum(BillingRecord.amount).label('total_amount')
+    ).filter(BillingRecord.date >= thirty_days_ago).group_by(func.date(BillingRecord.date)).order_by(func.date(BillingRecord.date)).all()
+
+    billing_trend_labels = [record.date.strftime('%Y-%m-%d') for record in billing_trend]
+    billing_trend_data = [float(record.total_amount) for record in billing_trend]
+
+    # Get top 5 highest billing amounts
+    top_5_bills = BillingRecord.query.order_by(BillingRecord.amount.desc()).limit(5).all()
+
     return render_template('analytics.html', 
                            total_records=total_records,
                            total_amount=total_amount,
@@ -83,46 +100,56 @@ def analytics():
                            paid_records=paid_records,
                            crypto_payments=crypto_payments,
                            chart_labels=labels,
-                           chart_data=data)
+                           chart_data=data,
+                           crypto_data=crypto_data,
+                           billing_trend_labels=billing_trend_labels,
+                           billing_trend_data=billing_trend_data,
+                           top_5_bills=top_5_bills)
 
-@app.route('/create_charge/<int:record_id>')
-def create_charge(record_id):
+@app.route('/api/create_cdp_session/<int:record_id>', methods=['POST'])
+def create_cdp_session(record_id):
     record = BillingRecord.query.get_or_404(record_id)
     
-    charge_data = {
-        'name': f'Medical Bill - {record.patient_name}',
-        'description': record.service_description,
+    # Replace with your actual Coinbase CDP API endpoint and credentials
+    cdp_api_url = 'https://api.coinbase.com/v2/cdp/sessions'
+    cdp_api_key = os.environ.get('COINBASE_CDP_API_KEY')
+    
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {cdp_api_key}'
+    }
+    
+    payload = {
         'local_price': {
             'amount': str(record.amount),
             'currency': 'USD'
         },
-        'pricing_type': 'fixed_price',
         'metadata': {
             'record_id': record.id
         }
     }
     
-    charge = coinbase_client.charge.create(**charge_data)
-    
-    return redirect(charge.hosted_url)
-
-@app.route('/coinbase_webhook', methods=['POST'])
-def coinbase_webhook():
-    webhook_secret = os.environ.get('COINBASE_COMMERCE_WEBHOOK_SECRET')
-    
-    request_data = request.data.decode('utf-8')
-    request_sig = request.headers.get('X-CC-Webhook-Signature', None)
-
     try:
-        event = Webhook.construct_event(request_data, request_sig, webhook_secret)
+        response = requests.post(cdp_api_url, json=payload, headers=headers)
+        response.raise_for_status()
+        session_data = response.json()
+        return jsonify({'sessionId': session_data['id']}), 200
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
-        if event['type'] == 'charge:confirmed':
-            record_id = event['data']['metadata']['record_id']
-            record = BillingRecord.query.get(record_id)
-            if record:
-                record.paid = True
-                db.session.commit()
-
-        return jsonify({'success': True}), 200
-    except (SignatureVerificationError, WebhookInvalidPayload) as e:
-        return jsonify({'success': False, 'message': str(e)}), 400
+@app.route('/cdp_webhook', methods=['POST'])
+def cdp_webhook():
+    # Implement CDP webhook handling here
+    # Verify the webhook signature and update the payment status
+    # This will depend on the specific requirements of the Coinbase CDP API
+    data = request.json
+    record_id = data['metadata']['record_id']
+    payment_currency = data['payment']['crypto']['currency']
+    
+    record = BillingRecord.query.get(record_id)
+    if record:
+        record.paid = True
+        record.payment_currency = payment_currency
+        db.session.commit()
+    
+    return '', 200

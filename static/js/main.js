@@ -6,35 +6,37 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBillingRecords();
 
     // Add new billing record
-    billingForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(billingForm);
-        const record = {
-            patient_name: formData.get('patient_name'),
-            medical_record_number: formData.get('medical_record_number'),
-            service_description: formData.get('service_description'),
-            amount: parseFloat(formData.get('amount'))
-        };
+    if (billingForm) {
+        billingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(billingForm);
+            const record = {
+                patient_name: formData.get('patient_name'),
+                medical_record_number: formData.get('medical_record_number'),
+                service_description: formData.get('service_description'),
+                amount: parseFloat(formData.get('amount'))
+            };
 
-        try {
-            const response = await fetch('/api/billing_records', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(record)
-            });
+            try {
+                const response = await fetch('/api/billing_records', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(record)
+                });
 
-            if (response.ok) {
-                billingForm.reset();
-                loadBillingRecords();
-            } else {
-                console.error('Failed to add record');
+                if (response.ok) {
+                    billingForm.reset();
+                    loadBillingRecords();
+                } else {
+                    console.error('Failed to add record');
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
+        });
+    }
 
     async function loadBillingRecords() {
         try {
@@ -47,25 +49,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayRecords(records) {
-        recordsList.innerHTML = '';
-        records.forEach(record => {
-            const li = document.createElement('li');
-            li.className = 'mb-4 p-4 bg-white rounded shadow';
-            li.innerHTML = `
-                <p><strong>Patient:</strong> ${record.patient_name}</p>
-                <p><strong>Medical Record Number:</strong> ${record.medical_record_number}</p>
-                <p><strong>Service:</strong> ${record.service_description}</p>
-                <p><strong>Amount:</strong> $${record.amount.toFixed(2)}</p>
-                <p><strong>Date:</strong> ${record.date}</p>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="editRecord(${record.id})">Edit</button>
-                <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="deleteRecord(${record.id})">Delete</button>
-                <a href="/invoice/${record.id}" target="_blank" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Generate Invoice</a>
-            `;
-            recordsList.appendChild(li);
-        });
+        if (recordsList) {
+            recordsList.innerHTML = '';
+            records.forEach(record => {
+                const li = document.createElement('li');
+                li.className = 'mb-4 p-4 bg-white rounded shadow';
+                li.innerHTML = `
+                    <p><strong>Patient:</strong> ${record.patient_name}</p>
+                    <p><strong>Medical Record Number:</strong> ${record.medical_record_number}</p>
+                    <p><strong>Service:</strong> ${record.service_description}</p>
+                    <p><strong>Amount:</strong> $${record.amount.toFixed(2)}</p>
+                    <p><strong>Date:</strong> ${record.date}</p>
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="editRecord(${record.id})">Edit</button>
+                    <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2" onclick="deleteRecord(${record.id})">Delete</button>
+                    <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="initiatePayment(${record.id}, ${record.amount})">Pay with Crypto</button>
+                `;
+                recordsList.appendChild(li);
+            });
+        }
     }
 
     window.editRecord = async (id) => {
+        if (!billingForm) return;
         const response = await fetch(`/api/billing_records/${id}`);
         const record = await response.json();
         
@@ -121,6 +126,29 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+    };
+
+    window.initiatePayment = async (recordId, amount) => {
+        try {
+            const response = await fetch(`/api/create_cdp_session/${recordId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount: amount })
+            });
+
+            if (response.ok) {
+                const { sessionId } = await response.json();
+                // Implement Coinbase CDP payment flow here
+                console.log('Payment initiated with session ID:', sessionId);
+                alert('Payment initiated. Please complete the process in the Coinbase window.');
+            } else {
+                console.error('Failed to create CDP session');
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     };
 });

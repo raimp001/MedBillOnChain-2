@@ -31,15 +31,49 @@
     </div>
 </div>
 
-<div class="bg-white p-4 rounded shadow">
-    <h2 class="text-xl font-bold mb-4">Billing Amount Distribution</h2>
-    <canvas id="billingChart"></canvas>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-4">Cryptocurrency Payment Distribution</h2>
+        <canvas id="cryptoDistributionChart"></canvas>
+    </div>
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-4">Billing Amount Distribution</h2>
+        <canvas id="billingChart"></canvas>
+    </div>
+</div>
+
+<div class="bg-white p-4 rounded shadow mb-8">
+    <h2 class="text-xl font-bold mb-4">Billing Amount Trend</h2>
+    <canvas id="billingTrendChart"></canvas>
+</div>
+
+<div class="bg-white p-4 rounded shadow mb-8">
+    <h2 class="text-xl font-bold mb-4">Top 5 Highest Billing Amounts</h2>
+    <table class="w-full">
+        <thead>
+            <tr>
+                <th class="text-left">Patient Name</th>
+                <th class="text-left">Amount</th>
+                <th class="text-left">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in top_5_bills %}
+            <tr>
+                <td>{{ record.patient_name }}</td>
+                <td>${{ "%.2f"|format(record.amount) }}</td>
+                <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('billingChart').getContext('2d');
-    new Chart(ctx, {
+    // Billing Amount Distribution Chart
+    const billingCtx = document.getElementById('billingChart').getContext('2d');
+    new Chart(billingCtx, {
         type: 'bar',
         data: {
             labels: {{ chart_labels | tojson }},
@@ -65,6 +99,82 @@
                     title: {
                         display: true,
                         text: 'Billing Amount Range'
+                    }
+                }
+            }
+        }
+    });
+
+    // Cryptocurrency Payment Distribution Chart
+    const cryptoCtx = document.getElementById('cryptoDistributionChart').getContext('2d');
+    new Chart(cryptoCtx, {
+        type: 'pie',
+        data: {
+            labels: ['USDC', 'ETH', 'BTC', 'DOGE'],
+            datasets: [{
+                data: [
+                    {{ crypto_data['USDC'] }},
+                    {{ crypto_data['ETH'] }},
+                    {{ crypto_data['BTC'] }},
+                    {{ crypto_data['DOGE'] }}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)',
+                    'rgba(255, 99, 132, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Cryptocurrency Payment Distribution'
+                }
+            }
+        }
+    });
+
+    // Billing Amount Trend Chart
+    const trendCtx = document.getElementById('billingTrendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ billing_trend_labels | tojson }},
+            datasets: [{
+                label: 'Billing Amount',
+                data: {{ billing_trend_data | tojson }},
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Billing Amount ($)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
                     }
                 }
             }

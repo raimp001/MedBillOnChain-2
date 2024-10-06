@@ -326,6 +326,7 @@ dependencies = [
     { name = "flask-migrate" },
     { name = "flask-sqlalchemy" },
     { name = "psycopg2-binary" },
+    { name = "requests" },
 ]
 
 [package.metadata]
@@ -336,6 +337,7 @@ requires-dist = [
     { name = "flask-migrate", specifier = ">=4.0.7" },
     { name = "flask-sqlalchemy", specifier = ">=3.1.1" },
     { name = "psycopg2-binary", specifier = ">=2.9.9" },
+    { name = "requests", specifier = ">=2.32.3" },
 ]
 
 [[package]]

@@ -1,0 +1,12 @@
+{
+  "name": "medical-billing-app",
+  "version": "1.0.0",
+  "scripts": {
+    "build-css": "tailwindcss -i ./static/css/styles.css -o ./static/css/main.css --minify"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.23",
+    "tailwindcss": "^3.3.2"
+  }
+}
