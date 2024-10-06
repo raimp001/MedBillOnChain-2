@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Medical Billing App{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-4">Analytics Dashboard</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Total Records</h2>
+        <p class="text-3xl">{{ total_records }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Total Amount Billed</h2>
+        <p class="text-3xl">${{ "%.2f"|format(total_amount) }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Average Billing Amount</h2>
+        <p class="text-3xl">${{ "%.2f"|format(avg_amount) }}</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Paid Invoices</h2>
+        <p class="text-3xl">{{ paid_records }}</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Total Crypto Payments</h2>
+        <p class="text-3xl">${{ "%.2f"|format(crypto_payments) }}</p>
+    </div>
+</div>
+
+<div class="bg-white p-4 rounded shadow">
+    <h2 class="text-xl font-bold mb-4">Billing Amount Distribution</h2>
+    <canvas id="billingChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('billingChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels | tojson }},
+            datasets: [{
+                label: 'Number of Records',
+                data: {{ chart_data | tojson }},
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Records'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Billing Amount Range'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

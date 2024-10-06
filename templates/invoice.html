@@ -18,5 +18,15 @@
     <div class="mt-8">
         <p class="text-xl font-bold">Total Amount Due: ${{ "%.2f"|format(record.amount) }}</p>
     </div>
+    <div class="mt-8">
+        <h2 class="text-xl font-bold mb-2">Payment Options</h2>
+        {% if not record.paid %}
+            <a href="{{ url_for('create_charge', record_id=record.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Pay with Cryptocurrency
+            </a>
+        {% else %}
+            <p class="text-green-600 font-bold">Paid</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

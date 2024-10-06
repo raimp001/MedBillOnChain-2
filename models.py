@@ -8,6 +8,7 @@ class BillingRecord(db.Model):
     service_description = db.Column(db.String(200), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    paid = db.Column(db.Boolean, default=False)
 
     def to_dict(self):
         return {
@@ -16,5 +17,6 @@ class BillingRecord(db.Model):
             'medical_record_number': self.medical_record_number,
             'service_description': self.service_description,
             'amount': self.amount,
-            'date': self.date.strftime('%Y-%m-%d %H:%M:%S')
+            'date': self.date.strftime('%Y-%m-%d %H:%M:%S'),
+            'paid': self.paid
         }
