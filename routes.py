@@ -1,5 +1,5 @@
 import os
-from flask import jsonify, request, render_template, redirect, url_for
+from flask import jsonify, request, render_template, redirect, url_for, send_from_directory
 from app import app, db
 from models import BillingRecord
 from sqlalchemy import func
@@ -16,6 +16,10 @@ load_dotenv()
 @app.route('/')
 def index():
     return render_template('react_app.html')
+
+@app.route('/static/react-app/dist/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(os.path.join(app.root_path, 'react-app', 'dist'), filename)
 
 # Keep the existing routes...
 
@@ -36,7 +40,6 @@ def billing_records():
         records = BillingRecord.query.all()
         return jsonify([record.to_dict() for record in records])
 
-# New function for Base integration
 @app.route('/api/base_payment', methods=['POST'])
 def base_payment():
     data = request.json
