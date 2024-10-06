@@ -6,10 +6,9 @@ export default function MedicalBillingComponent() {
   const [services, setServices] = useState([]);
   const [newService, setNewService] = useState({ name: "", cost: "", icd10: "" });
 
-  const total = services.reduce((sum, service) => sum + service.cost, 0);
+  const total = services.reduce((sum, service) => sum + service.amount, 0);
 
   useEffect(() => {
-    // Fetch services from Flask backend
     fetch('/api/billing_records')
       .then(response => response.json())
       .then(data => setServices(data))
@@ -24,11 +23,10 @@ export default function MedicalBillingComponent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          patient_name: "Test Patient", // You might want to add a field for this
-          medical_record_number: "MRN123", // You might want to add a field for this
+          patient_name: "Test Patient",
+          medical_record_number: "MRN123",
           service_description: newService.name,
           amount: parseFloat(newService.cost),
-          // You might want to add the ICD10 code to your backend model
         }),
       })
         .then(response => response.json())
@@ -41,18 +39,35 @@ export default function MedicalBillingComponent() {
   };
 
   const initiatePayment = () => {
-    fetch(`/api/create_cdp_session/${services[0].id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ amount: total }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        window.open(data.hostedUrl, '_blank');
+    if (paymentMethod === "base") {
+      fetch('/api/base_payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: total }),
       })
-      .catch(error => console.error('Error initiating payment:', error));
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message);
+        })
+        .catch(error => console.error('Error initiating Base payment:', error));
+    } else if (paymentMethod === "crypto") {
+      fetch(`/api/create_cdp_session/${services[0].id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: total }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          window.open(data.hostedUrl, '_blank');
+        })
+        .catch(error => console.error('Error initiating payment:', error));
+    } else {
+      alert('Payment method not implemented yet');
+    }
   };
 
   return (
@@ -113,6 +128,17 @@ export default function MedicalBillingComponent() {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 />
                 Cryptocurrency
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  value="base"
+                  checked={paymentMethod === "base"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                />
+                Base (Ethereum L2)
               </label>
             </div>
           </div>

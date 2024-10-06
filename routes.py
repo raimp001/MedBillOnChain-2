@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from coinbase_commerce.client import Client
 from coinbase_commerce.webhook import Webhook
 from coinbase_commerce.error import SignatureVerificationError, WebhookInvalidPayload
+from web3 import Web3
 
 load_dotenv()
 
@@ -16,9 +17,7 @@ load_dotenv()
 def index():
     return render_template('react_app.html')
 
-# Keep the rest of the routes as they are...
-
-# Make sure the API routes return JSON data for the React frontend to consume
+# Keep the existing routes...
 
 @app.route('/api/billing_records', methods=['GET', 'POST'])
 def billing_records():
@@ -36,5 +35,24 @@ def billing_records():
     else:
         records = BillingRecord.query.all()
         return jsonify([record.to_dict() for record in records])
+
+# New function for Base integration
+@app.route('/api/base_payment', methods=['POST'])
+def base_payment():
+    data = request.json
+    amount = data['amount']
+    
+    # Connect to Base (Goerli testnet for now)
+    w3 = Web3(Web3.HTTPProvider('https://goerli.base.org'))
+    
+    # Check if connected
+    if not w3.isConnected():
+        return jsonify({'error': 'Unable to connect to Base network'}), 500
+    
+    # TODO: Implement actual payment logic here
+    # This would involve creating and signing a transaction
+    # For now, we'll just return a success message
+    
+    return jsonify({'message': f'Payment of {amount} processed on Base (simulated)'}), 200
 
 # Keep the rest of the routes as they are...
