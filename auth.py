@@ -37,27 +37,3 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
-
-@auth.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        role = request.form.get('role')
-
-        user = User.query.filter_by(email=email).first()
-        if user:
-            flash('Email address already exists')
-            return redirect(url_for('auth.signup'))
-
-        new_user = User(username=username, email=email, role=role)
-        new_user.set_password(password)
-
-        db.session.add(new_user)
-        db.session.commit()
-
-        logging.debug(f"New user created: {username}")
-        return redirect(url_for('auth.login'))
-
-    return render_template('signup.html')

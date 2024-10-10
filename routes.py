@@ -5,7 +5,6 @@ import logging
 main = Blueprint('main', __name__)
 
 @main.route('/')
-@login_required
 def index():
     logging.debug(f"Index route accessed by user: {current_user.username if current_user.is_authenticated else 'Anonymous'}")
     return render_template('dashboard.html')
