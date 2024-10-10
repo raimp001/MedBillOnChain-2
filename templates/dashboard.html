@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Dashboard</h2>
+<div id="financial-summary">
+    <h3>Financial Summary</h3>
+    <!-- Add charts and summaries here -->
+</div>
+<div id="billing-overview">
+    <h3>Billing Overview</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Invoice ID</th>
+                <th>Patient</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="invoice-list">
+            <!-- JavaScript will populate this -->
+        </tbody>
+    </table>
+</div>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

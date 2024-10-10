@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Patient Invoice</h2>
+<form id="invoice-form">
+    <div>
+        <label for="patient-name">Patient Name:</label>
+        <input type="text" id="patient-name" name="patient-name" required>
+    </div>
+    <div>
+        <label for="patient-email">Patient Email:</label>
+        <input type="email" id="patient-email" name="patient-email" required>
+    </div>
+    <div>
+        <label for="patient-address">Patient Address:</label>
+        <textarea id="patient-address" name="patient-address" required></textarea>
+    </div>
+    <h3>Medical Services</h3>
+    <table id="services-table">
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>ICD-10</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody id="services-list">
+            <!-- JavaScript will populate this -->
+        </tbody>
+    </table>
+    <button type="button" id="add-service">Add Service</button>
+    <div>
+        <label for="total">Total:</label>
+        <input type="text" id="total" name="total" readonly>
+    </div>
+    <div>
+        <label for="additional-notes">Additional Notes:</label>
+        <textarea id="additional-notes" name="additional-notes"></textarea>
+    </div>
+    <button type="submit">Generate Invoice</button>
+</form>
+<script src="{{ url_for('static', filename='js/invoice.js') }}"></script>
+{% endblock %}
