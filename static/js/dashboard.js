@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    fetchInvoices();
+    const invoiceList = document.getElementById('invoice-list');
+    if (invoiceList) {
+        fetchInvoices();
+    }
 });
 
 function fetchInvoices() {
@@ -11,19 +14,21 @@ function fetchInvoices() {
     ];
 
     const invoiceList = document.getElementById('invoice-list');
-    invoiceList.innerHTML = '';
+    if (invoiceList) {
+        invoiceList.innerHTML = '';
 
-    mockInvoices.forEach(invoice => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${invoice.id}</td>
-            <td>${invoice.patient}</td>
-            <td>$${invoice.amount.toFixed(2)}</td>
-            <td>${invoice.status}</td>
-            <td><button onclick="viewInvoice(${invoice.id})">View</button></td>
-        `;
-        invoiceList.appendChild(row);
-    });
+        mockInvoices.forEach(invoice => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${invoice.id}</td>
+                <td>${invoice.patient}</td>
+                <td>$${invoice.amount.toFixed(2)}</td>
+                <td>${invoice.status}</td>
+                <td><button onclick="viewInvoice(${invoice.id})">View</button></td>
+            `;
+            invoiceList.appendChild(row);
+        });
+    }
 }
 
 function viewInvoice(invoiceId) {
