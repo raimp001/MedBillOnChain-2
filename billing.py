@@ -1,12 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import login_required, current_user
 from models import Invoice, Service
 from app import db
 
 billing = Blueprint('billing', __name__)
 
 @billing.route('/create_invoice', methods=['GET', 'POST'])
-@login_required
 def create_invoice():
     if request.method == 'POST':
         patient_id = request.form.get('patient_id')
@@ -30,7 +28,6 @@ def create_invoice():
     return render_template('create_invoice.html')
 
 @billing.route('/pay_invoice/<int:invoice_id>', methods=['POST'])
-@login_required
 def pay_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     # Process payment logic here

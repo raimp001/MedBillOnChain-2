@@ -2,50 +2,47 @@
 
 {% block content %}
 <div class="invoice-container">
-    <h2 class="invoice-title">Patient Invoice</h2>
-    <form id="invoice-form">
-        <div class="patient-info">
-            <div class="form-group">
-                <label for="patient-name">Patient Name</label>
-                <input type="text" id="patient-name" name="patient-name" placeholder="Enter patient name" required>
-            </div>
-            <div class="form-group">
-                <label for="patient-email">Patient Email</label>
-                <input type="email" id="patient-email" name="patient-email" placeholder="Enter patient email" required>
-            </div>
-            <div class="form-group">
-                <label for="patient-address">Patient Address</label>
-                <textarea id="patient-address" name="patient-address" placeholder="Enter patient address" required></textarea>
-            </div>
-        </div>
+    <h2 class="invoice-title">Invoice #{{ invoice.id }}</h2>
+    <div class="patient-info">
+        <p><strong>Patient Name:</strong> {{ invoice.patient_name }}</p>
+        <p><strong>Patient Email:</strong> {{ invoice.patient_email }}</p>
+        <p><strong>Patient Address:</strong> {{ invoice.patient_address }}</p>
+    </div>
 
-        <div class="medical-services">
-            <h3>Medical Services</h3>
-            <table id="services-table">
-                <thead>
-                    <tr>
-                        <th>Service</th>
-                        <th>ICD-10</th>
-                        <th>Cost</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="services-list"></tbody>
-            </table>
-            <button type="button" id="add-service">Add Service</button>
-        </div>
+    <div class="medical-services">
+        <h3>Medical Services</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>ICD-10</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in invoice.services %}
+                <tr>
+                    <td>{{ service.description }}</td>
+                    <td>{{ service.icd_code }}</td>
+                    <td>${{ "%.2f"|format(service.cost) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        <div class="total-section">
-            <label for="total">Total:</label>
-            <input type="text" id="total" name="total" readonly>
-        </div>
+    <div class="total-section">
+        <p><strong>Total: ${{ "%.2f"|format(invoice.amount) }}</strong></p>
+    </div>
 
-        <div class="form-group">
-            <label for="additional-notes">Additional Notes</label>
-            <textarea id="additional-notes" name="additional-notes" placeholder="Enter any additional notes or instructions for the patient"></textarea>
-        </div>
+    <div class="status-section">
+        <p><strong>Status:</strong> {{ invoice.status }}</p>
+    </div>
 
-        <button type="submit" class="submit-button">Generate Invoice</button>
+    {% if invoice.status == 'Pending' %}
+    <form action="{{ url_for('main.pay_invoice', invoice_id=invoice.id) }}" method="POST">
+        <button type="submit" class="pay-button">Pay Invoice</button>
     </form>
+    {% endif %}
 </div>
 {% endblock %}

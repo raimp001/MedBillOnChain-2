@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="invoice-container">
+    <h2 class="invoice-title">Create New Invoice</h2>
+    <form id="invoice-form" method="POST">
+        <div class="patient-info">
+            <div class="form-group">
+                <label for="patient-name">Patient Name</label>
+                <input type="text" id="patient-name" name="patient-name" required>
+            </div>
+            <div class="form-group">
+                <label for="patient-email">Patient Email</label>
+                <input type="email" id="patient-email" name="patient-email" required>
+            </div>
+            <div class="form-group">
+                <label for="patient-address">Patient Address</label>
+                <textarea id="patient-address" name="patient-address" required></textarea>
+            </div>
+        </div>
+
+        <div class="medical-services">
+            <h3>Medical Services</h3>
+            <table id="services-table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>ICD-10</th>
+                        <th>Cost</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="services-list"></tbody>
+            </table>
+            <button type="button" id="add-service">Add Service</button>
+        </div>
+
+        <div class="total-section">
+            <label for="total">Total:</label>
+            <input type="text" id="total" name="total" readonly>
+        </div>
+
+        <button type="submit" class="submit-button">Generate Invoice</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addServiceButton = document.getElementById('add-service');
+    const servicesList = document.getElementById('services-list');
+    const totalInput = document.getElementById('total');
+
+    addServiceButton.addEventListener('click', addService);
+
+    function addService() {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" name="service" required></td>
+            <td><input type="text" name="icd" required></td>
+            <td><input type="number" name="cost" step="0.01" required onchange="updateTotal()"></td>
+            <td><button type="button" onclick="removeService(this)">Remove</button></td>
+        `;
+        servicesList.appendChild(newRow);
+        updateTotal();
+    }
+
+    window.removeService = function(button) {
+        const row = button.closest('tr');
+        row.parentNode.removeChild(row);
+        updateTotal();
+    }
+
+    window.updateTotal = function() {
+        const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
+        const total = costs.reduce((sum, cost) => sum + cost, 0);
+        totalInput.value = total.toFixed(2);
+    }
+});
+</script>
+{% endblock %}

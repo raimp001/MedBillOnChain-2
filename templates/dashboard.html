@@ -18,10 +18,18 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="invoice-list">
-            <!-- JavaScript will populate this -->
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.id }}</td>
+                <td>{{ invoice.patient_name }}</td>
+                <td>${{ "%.2f"|format(invoice.amount) }}</td>
+                <td>{{ invoice.status }}</td>
+                <td><a href="{{ url_for('main.invoice', invoice_id=invoice.id) }}">View</a></td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<a href="{{ url_for('main.create_invoice') }}" class="button">Create New Invoice</a>
 {% endblock %}
