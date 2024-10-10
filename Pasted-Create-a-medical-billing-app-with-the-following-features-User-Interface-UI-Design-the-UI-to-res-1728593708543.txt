@@ -1,0 +1,24 @@
+Create a medical billing app with the following features:
+
+User Interface (UI):
+Design the UI to resemble [insert reference UI style or app], ensuring a clean, intuitive, and user-friendly experience tailored for medical billing professionals and patients. Include the following UI components:
+Dashboard with financial summaries and billing overviews
+Navigation menu for access to invoices, payments, and account settings
+Interactive charts and tables for displaying payment history, outstanding balances, and transaction reports
+Patient and provider profiles, including easy access to billing and medical codes
+Integration with Coinbase OnchainKit:
+Implement Coinbase OnchainKit to enable cryptocurrency payments for medical bills.
+Ensure smooth integration with popular cryptocurrencies and Base Chain for secure, transparent, and verifiable transactions.
+Allow patients to link their crypto wallets and make payments directly through the app using OnchainKit's decentralized infrastructure.
+Include automated invoicing, real-time transaction status, and payment confirmations using blockchain technology.
+Billing Features:
+Generate and manage invoices for medical services, with support for various insurance providers and customizable billing codes (ICD, CPT, etc.).
+Provide multi-payment options, including traditional methods (credit card, bank transfer) alongside crypto payments via Coinbase OnchainKit.
+Implement automated reminders for unpaid invoices and payment due dates.
+Offer detailed reporting tools for both patients and providers, including exportable financial summaries and statements for tax purposes.
+Include a feature for tracking insurance claims, deductibles, and patient co-pays.
+Additional Features:
+Secure login options with multi-factor authentication for both patients and medical staff.
+Role-based access control to ensure that only authorized users can view sensitive financial and medical data.
+Real-time notifications for new bills, payment confirmations, and any discrepancies in the billing process.
+A support section with FAQ, live chat, and helpdesk for users needing assistance with their accounts or payments.
