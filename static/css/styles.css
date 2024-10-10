@@ -33,34 +33,50 @@ nav a {
     text-decoration: none;
 }
 
-form div {
+.invoice-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.invoice-title {
+    background-color: #4285F4;
+    color: white;
+    padding: 20px;
+    margin: 0 0 20px 0;
+    font-size: 24px;
+}
+
+.form-group {
     margin-bottom: 15px;
 }
 
 label {
     display: block;
     margin-bottom: 5px;
+    font-weight: bold;
 }
 
 input[type="text"],
 input[type="email"],
-input[type="password"],
 textarea {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 button {
-    background: #333;
+    background: #4285F4;
     color: #fff;
     padding: 10px 15px;
     border: none;
     cursor: pointer;
+    border-radius: 4px;
 }
 
 button:hover {
-    background: #444;
+    background: #3367D6;
 }
 
 table {
@@ -77,4 +93,20 @@ th, td {
 
 th {
     background-color: #f4f4f4;
+}
+
+.total-section {
+    margin-top: 20px;
+    text-align: right;
+}
+
+#total {
+    font-weight: bold;
+    width: 150px;
+}
+
+.submit-button {
+    margin-top: 20px;
+    display: block;
+    width: 100%;
 }
