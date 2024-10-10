@@ -1,10 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user
 from models import User
 from app import db
+import logging
 
 auth = Blueprint('auth', __name__)
+
+logging.basicConfig(level=logging.DEBUG)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -13,13 +16,18 @@ def login():
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
 
+        logging.debug(f"Login attempt for username: {username}")
+
         user = User.query.filter_by(username=username).first()
 
         if not user or not check_password_hash(user.password_hash, password):
+            logging.debug(f"Login failed for username: {username}")
             flash('Please check your login details and try again.')
             return redirect(url_for('auth.login'))
 
         login_user(user, remember=remember)
+        logging.debug(f"Login successful for username: {username}")
+        logging.debug(f"Session data after login: {session}")
         return redirect(url_for('main.dashboard'))
 
     return render_template('login.html')
@@ -44,11 +52,12 @@ def signup():
             return redirect(url_for('auth.signup'))
 
         new_user = User(username=username, email=email, role=role)
-        new_user.password_hash = generate_password_hash(password)
+        new_user.set_password(password)
 
         db.session.add(new_user)
         db.session.commit()
 
+        logging.debug(f"New user created: {username}")
         return redirect(url_for('auth.login'))
 
     return render_template('signup.html')

@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_login import LoginManager
+import logging
 
 class Base(DeclarativeBase):
     pass
@@ -21,6 +22,7 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -39,5 +41,8 @@ def create_app():
 
         from billing import billing as billing_blueprint
         app.register_blueprint(billing_blueprint)
+
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug("App created and configured")
 
     return app
