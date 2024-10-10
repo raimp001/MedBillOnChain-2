@@ -3,52 +3,35 @@ body {
     line-height: 1.6;
     margin: 0;
     padding: 0;
+    background-color: #f4f4f4;
 }
 
 .container {
-    width: 80%;
+    width: 100%;
+    max-width: 800px;
     margin: auto;
-    overflow: hidden;
-    padding: 0 20px;
-}
-
-nav {
-    background: #333;
-    color: #fff;
-    padding: 10px 0;
-}
-
-nav ul {
-    padding: 0;
-    list-style: none;
-}
-
-nav li {
-    display: inline;
-    padding: 0 20px;
-}
-
-nav a {
-    color: #fff;
-    text-decoration: none;
+    padding: 20px;
 }
 
 .invoice-container {
-    max-width: 800px;
-    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
 }
 
 .invoice-title {
-    background-color: #4285F4;
-    color: white;
+    background-color: #000000;
+    color: #ffffff;
     padding: 20px;
-    margin: 0 0 20px 0;
+    margin: -20px -20px 20px -20px;
     font-size: 24px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 label {
@@ -61,52 +44,83 @@ input[type="text"],
 input[type="email"],
 textarea {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-size: 16px;
 }
 
-button {
-    background: #4285F4;
-    color: #fff;
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
+textarea {
+    resize: vertical;
 }
 
-button:hover {
-    background: #3367D6;
+.medical-services {
+    margin-top: 30px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 th, td {
     padding: 10px;
-    border: 1px solid #ddd;
     text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
 th {
-    background-color: #f4f4f4;
+    background-color: #f8f8f8;
+}
+
+.add-service-btn {
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.add-service-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.plus-icon {
+    font-size: 18px;
+    margin-right: 5px;
 }
 
 .total-section {
-    margin-top: 20px;
     text-align: right;
-}
-
-#total {
+    font-size: 18px;
     font-weight: bold;
-    width: 150px;
+    margin-top: 20px;
 }
 
-.submit-button {
-    margin-top: 20px;
-    display: block;
+.additional-notes {
+    margin-top: 30px;
+}
+
+.generate-invoice-btn {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
     width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 30px;
+    transition: background-color 0.3s;
+}
+
+.generate-invoice-btn:hover {
+    background-color: #333333;
 }

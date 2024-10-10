@@ -8,6 +8,7 @@ class Invoice(db.Model):
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), nullable=False)
     services = db.relationship('Service', backref='invoice', lazy=True)
+    additional_notes = db.Column(db.Text)
 
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)

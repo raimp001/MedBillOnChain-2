@@ -1,58 +1,60 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const addServiceButton = document.getElementById('add-service');
+    const servicesList = document.getElementById('services-list');
+    const totalSpan = document.getElementById('total');
     const invoiceForm = document.getElementById('invoice-form');
-    if (invoiceForm) {
-        const addServiceButton = document.getElementById('add-service');
-        const servicesList = document.getElementById('services-list');
-        const totalInput = document.getElementById('total');
 
-        if (addServiceButton && servicesList && totalInput) {
-            addServiceButton.addEventListener('click', addService);
-            invoiceForm.addEventListener('submit', generateInvoice);
-        }
-
-        function addService() {
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td><input type="text" name="service" required></td>
-                <td><input type="text" name="icd" required></td>
-                <td><input type="number" name="cost" step="0.01" required onchange="updateTotal()"></td>
-                <td><button type="button" onclick="removeService(this)">Remove</button></td>
-            `;
-            servicesList.appendChild(newRow);
-            updateTotal();
-        }
-
-        window.removeService = function(button) {
-            const row = button.closest('tr');
-            if (row && row.parentNode) {
-                row.parentNode.removeChild(row);
-                updateTotal();
-            }
-        }
-
-        window.updateTotal = function() {
-            const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
-            const total = costs.reduce((sum, cost) => sum + cost, 0);
-            totalInput.value = total.toFixed(2);
-        }
-
-        function generateInvoice(event) {
-            event.preventDefault();
-            // Here you would typically send the form data to the server
-            // For this example, we'll just log it to the console
-            console.log('Invoice generated', {
-                patientName: document.getElementById('patient-name')?.value,
-                patientEmail: document.getElementById('patient-email')?.value,
-                patientAddress: document.getElementById('patient-address')?.value,
-                services: Array.from(servicesList.children).map(row => ({
-                    service: row.querySelector('[name="service"]')?.value,
-                    icd: row.querySelector('[name="icd"]')?.value,
-                    cost: row.querySelector('[name="cost"]')?.value
-                })),
-                total: totalInput.value,
-                additionalNotes: document.getElementById('additional-notes')?.value
-            });
-            alert('Invoice generated successfully!');
-        }
+    if (addServiceButton && servicesList && totalSpan && invoiceForm) {
+        addServiceButton.addEventListener('click', addService);
+        invoiceForm.addEventListener('submit', generateInvoice);
     }
+
+    function addService() {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td><input type="text" name="service" required></td>
+            <td><input type="text" name="icd" required></td>
+            <td><input type="number" name="cost" step="0.01" required onchange="updateTotal()"></td>
+        `;
+        servicesList.appendChild(newRow);
+        updateTotal();
+    }
+
+    window.updateTotal = function() {
+        const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
+        const total = costs.reduce((sum, cost) => sum + cost, 0);
+        totalSpan.textContent = total.toFixed(2);
+    }
+
+    function generateInvoice(event) {
+        event.preventDefault();
+        const formData = new FormData(invoiceForm);
+        const invoiceData = {
+            patientName: formData.get('patient-name'),
+            patientEmail: formData.get('patient-email'),
+            patientAddress: formData.get('patient-address'),
+            services: [],
+            total: parseFloat(totalSpan.textContent),
+            additionalNotes: formData.get('additional-notes')
+        };
+
+        const services = formData.getAll('service');
+        const icds = formData.getAll('icd');
+        const costs = formData.getAll('cost');
+
+        for (let i = 0; i < services.length; i++) {
+            invoiceData.services.push({
+                service: services[i],
+                icd: icds[i],
+                cost: parseFloat(costs[i])
+            });
+        }
+
+        // Here you would typically send the invoiceData to the server
+        console.log('Invoice generated', invoiceData);
+        alert('Invoice generated successfully!');
+    }
+
+    // Add an initial service row
+    addService();
 });
