@@ -8,12 +8,7 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
     logging.debug("Index route accessed")
-    return render_template('dashboard.html')
-
-@main.route('/profile')
-def profile():
-    logging.debug("Profile route accessed")
-    return render_template('profile.html')
+    return redirect(url_for('main.create_invoice'))
 
 @main.route('/invoice/<int:invoice_id>')
 def invoice(invoice_id):
@@ -21,44 +16,33 @@ def invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     return render_template('invoice.html', invoice=invoice)
 
-@main.route('/dashboard')
-def dashboard():
-    logging.debug("Dashboard route accessed")
-    invoices = Invoice.query.all()
-    return render_template('dashboard.html', invoices=invoices)
-
 @main.route('/create_invoice', methods=['GET', 'POST'])
 def create_invoice():
     if request.method == 'POST':
-        data = request.form
+        data = request.json
         new_invoice = Invoice(
-            patient_name=data['patient-name'],
-            patient_email=data['patient-email'],
-            patient_address=data['patient-address'],
-            status='Pending'
+            patient_name=data['patientName'],
+            patient_email=data['patientEmail'],
+            patient_address=data['patientAddress'],
+            amount=data['total'],
+            status='Pending',
+            additional_notes=data['additionalNotes']
         )
         db.session.add(new_invoice)
         db.session.flush()
 
-        services = data.getlist('service')
-        icds = data.getlist('icd')
-        costs = data.getlist('cost')
-        total_amount = 0
-
-        for service, icd, cost in zip(services, icds, costs):
+        for service in data['services']:
             new_service = Service(
                 invoice_id=new_invoice.id,
-                description=service,
-                icd_code=icd,
-                cost=float(cost)
+                description=service['service'],
+                icd_code=service['icd'],
+                cost=float(service['cost'])
             )
             db.session.add(new_service)
-            total_amount += float(cost)
 
-        new_invoice.amount = total_amount
         db.session.commit()
 
-        return redirect(url_for('main.invoice', invoice_id=new_invoice.id))
+        return jsonify({'success': True, 'invoice_id': new_invoice.id}), 201
 
     return render_template('create_invoice.html')
 

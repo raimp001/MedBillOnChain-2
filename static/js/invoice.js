@@ -51,8 +51,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Here you would typically send the invoiceData to the server
-        console.log('Invoice generated', invoiceData);
-        alert('Invoice generated successfully!');
+        fetch('/create_invoice', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(invoiceData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            alert('Invoice generated successfully!');
+            window.location.href = `/invoice/${data.invoice_id}`;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('Failed to generate invoice. Please try again.');
+        });
     }
 
     // Add an initial service row
