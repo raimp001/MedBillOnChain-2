@@ -7,9 +7,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addServiceButton && servicesList && totalSpan && invoiceForm) {
         addServiceButton.addEventListener('click', addService);
         invoiceForm.addEventListener('submit', generateInvoice);
+        // Add an initial service row
+        addService();
+    } else {
+        console.error('One or more required elements are missing from the DOM');
     }
 
     function addService() {
+        if (!servicesList) {
+            console.error('Services list element not found');
+            return;
+        }
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td><input type="text" name="service" required></td>
@@ -21,6 +29,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.updateTotal = function() {
+        if (!totalSpan) {
+            console.error('Total span element not found');
+            return;
+        }
         const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
         const total = costs.reduce((sum, cost) => sum + cost, 0);
         totalSpan.textContent = total.toFixed(2);
@@ -28,13 +40,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function generateInvoice(event) {
         event.preventDefault();
+        if (!invoiceForm) {
+            console.error('Invoice form not found');
+            return;
+        }
         const formData = new FormData(invoiceForm);
         const invoiceData = {
             patientName: formData.get('patient-name'),
             patientEmail: formData.get('patient-email'),
             patientAddress: formData.get('patient-address'),
             services: [],
-            total: parseFloat(totalSpan.textContent),
+            total: parseFloat(totalSpan ? totalSpan.textContent : '0'),
             additionalNotes: formData.get('additional-notes')
         };
 
@@ -50,7 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Here you would typically send the invoiceData to the server
         fetch('/create_invoice', {
             method: 'POST',
             headers: {
@@ -69,7 +84,4 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Failed to generate invoice. Please try again.');
         });
     }
-
-    // Add an initial service row
-    addService();
 });
