@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td><button type="button" onclick="removeService(this)">Remove</button></td>
             `;
             servicesList.appendChild(newRow);
+            updateTotal();
         }
     }
 

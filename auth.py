@@ -20,7 +20,7 @@ def login():
             return redirect(url_for('auth.login'))
 
         login_user(user, remember=remember)
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
 
     return render_template('login.html')
 
@@ -44,7 +44,7 @@ def signup():
             return redirect(url_for('auth.signup'))
 
         new_user = User(username=username, email=email, role=role)
-        new_user.set_password(password)
+        new_user.password_hash = generate_password_hash(password)
 
         db.session.add(new_user)
         db.session.commit()
