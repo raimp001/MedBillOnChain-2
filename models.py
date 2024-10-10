@@ -4,7 +4,7 @@ class Invoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_name = db.Column(db.String(100), nullable=False)
     patient_email = db.Column(db.String(120), nullable=False)
-    patient_address = db.Column(db.String(200))
+    patient_address = db.Column(db.String(200), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), nullable=False)
     additional_notes = db.Column(db.Text)
