@@ -28,16 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTotal();
     }
 
-    window.updateTotal = function() {
-        if (!totalSpan) {
-            console.error('Total span element not found');
-            return;
-        }
-        const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
-        const total = costs.reduce((sum, cost) => sum + cost, 0);
-        totalSpan.textContent = total.toFixed(2);
-    }
-
     function generateInvoice(event) {
         event.preventDefault();
         if (!invoiceForm) {
@@ -85,3 +75,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Make updateTotal function globally available
+window.updateTotal = function() {
+    const totalSpan = document.getElementById('total');
+    if (!totalSpan) {
+        console.error('Total span element not found');
+        return;
+    }
+    const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
+    const total = costs.reduce((sum, cost) => sum + cost, 0);
+    totalSpan.textContent = total.toFixed(2);
+}

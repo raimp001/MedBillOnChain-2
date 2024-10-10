@@ -1,13 +1,14 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
-import logging
 
 class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
@@ -19,15 +20,11 @@ def create_app():
     }
 
     db.init_app(app)
+    migrate.init_app(app, db)
 
     with app.app_context():
         import models
-        db.create_all()
-
         from routes import main as main_blueprint
         app.register_blueprint(main_blueprint)
-
-    logging.basicConfig(level=logging.DEBUG)
-    logging.debug("App created and configured")
 
     return app
