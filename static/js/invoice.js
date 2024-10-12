@@ -63,7 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(invoiceData),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             console.log('Success:', data);
             alert('Invoice generated successfully!');
@@ -71,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch((error) => {
             console.error('Error:', error);
-            alert('Failed to generate invoice. Please try again.');
+            alert('Failed to generate invoice. Please try again. Error: ' + error.message);
         });
     }
 });
