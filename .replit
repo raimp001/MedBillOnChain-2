@@ -23,6 +23,14 @@ args = "Git Operations"
 task = "workflow.run"
 args = "Apply Migrations"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Git Stage Changes"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Git Commit"
+
 [[workflows.workflow]]
 name = "Start Flask App"
 author = "agent"
@@ -56,6 +64,28 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "flask db upgrade"
+
+[[workflows.workflow]]
+name = "Git Stage Changes"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "git add ."
+
+[[workflows.workflow]]
+name = "Git Commit"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "git commit -m \"Update invoice creation functionality and fix JavaScript errors\""
 
 [deployment]
 run = ["sh", "-c", "python main.py"]
