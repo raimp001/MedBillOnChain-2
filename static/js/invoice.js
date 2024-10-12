@@ -92,3 +92,8 @@ window.updateTotal = function() {
     const total = costs.reduce((sum, cost) => sum + cost, 0);
     totalSpan.textContent = total.toFixed(2);
 }
+
+// Add error event listener to catch and log any unhandled errors
+window.addEventListener('error', function(event) {
+    console.error('Unhandled error:', event.error);
+});
