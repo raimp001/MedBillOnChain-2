@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, current_app
 from models import Invoice, Service
 from app import db
 import logging
@@ -19,30 +19,41 @@ def invoice(invoice_id):
 @main.route('/create_invoice', methods=['GET', 'POST'])
 def create_invoice():
     if request.method == 'POST':
-        data = request.json
-        new_invoice = Invoice(
-            patient_name=data['patientName'],
-            patient_email=data['patientEmail'],
-            patient_address=data['patientAddress'],
-            amount=data['total'],
-            status='Pending',
-            additional_notes=data['additionalNotes']
-        )
-        db.session.add(new_invoice)
-        db.session.flush()
+        try:
+            data = request.json
+            # Validate required fields
+            required_fields = ['patientName', 'patientEmail', 'patientAddress', 'services', 'total']
+            for field in required_fields:
+                if field not in data:
+                    raise ValueError(f"Missing required field: {field}")
 
-        for service in data['services']:
-            new_service = Service(
-                invoice_id=new_invoice.id,
-                description=service['service'],
-                icd_code=service['icd'],
-                cost=float(service['cost'])
+            new_invoice = Invoice(
+                patient_name=data['patientName'],
+                patient_email=data['patientEmail'],
+                patient_address=data['patientAddress'],
+                amount=float(data['total']),
+                status='Pending',
+                additional_notes=data.get('additionalNotes', '')
             )
-            db.session.add(new_service)
+            db.session.add(new_invoice)
+            db.session.flush()
 
-        db.session.commit()
+            for service in data['services']:
+                new_service = Service(
+                    invoice_id=new_invoice.id,
+                    description=service['service'],
+                    icd_code=service['icd'],
+                    cost=float(service['cost'])
+                )
+                db.session.add(new_service)
 
-        return jsonify({'success': True, 'invoice_id': new_invoice.id}), 201
+            db.session.commit()
+            current_app.logger.info(f"Invoice created successfully: {new_invoice.id}")
+            return jsonify({'success': True, 'invoice_id': new_invoice.id}), 201
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error creating invoice: {str(e)}")
+            return jsonify({'error': str(e)}), 400
 
     return render_template('create_invoice.html')
 
