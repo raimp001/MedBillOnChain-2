@@ -1,8 +1,8 @@
-
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, current_app, flash
 from models import Invoice, Service
 from app import db
 import logging
+from crypto import onchain_kit
 
 main = Blueprint('main', __name__)
 
@@ -27,7 +27,6 @@ def create_invoice():
     if request.method == 'POST':
         try:
             data = request.json
-            # Validate required fields
             required_fields = ['patientName', 'patientEmail', 'patientAddress', 'services', 'total']
             for field in required_fields:
                 if field not in data:
@@ -82,3 +81,51 @@ def get_invoices():
         'amount': invoice.amount,
         'status': invoice.status
     } for invoice in invoices])
+
+@main.route('/crypto_payment/<int:invoice_id>', methods=['POST'])
+def crypto_payment(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    
+    try:
+        payment = onchain_kit.create_payment(str(invoice.amount), 'USD')
+        
+        # Update the invoice with the payment information
+        invoice.crypto_payment_id = payment['id']
+        invoice.crypto_payment_address = payment['address']
+        invoice.crypto_payment_amount = payment['amount']
+        invoice.crypto_payment_currency = payment['currency']
+        invoice.status = 'Pending Crypto Payment'
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'payment_address': payment['address'],
+            'payment_amount': payment['amount'],
+            'payment_currency': payment['currency']
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"Error creating crypto payment: {str(e)}")
+        return jsonify({'error': str(e)}), 400
+
+@main.route('/check_crypto_payment/<int:invoice_id>', methods=['GET'])
+def check_crypto_payment(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    
+    if not invoice.crypto_payment_id:
+        return jsonify({'error': 'No crypto payment initiated for this invoice'}), 400
+    
+    try:
+        payment_status = onchain_kit.check_payment_status(invoice.crypto_payment_id)
+        
+        if payment_status == 'completed':
+            invoice.status = 'Paid'
+            db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'status': payment_status
+        }), 200
+    except Exception as e:
+        current_app.logger.error(f"Error checking crypto payment status: {str(e)}")
+        return jsonify({'error': str(e)}), 400
