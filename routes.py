@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, jsonif
 from models import Invoice, Service
 from app import db
 import logging
-from crypto import onchain_kit
+from crypto import onchain_kit  # Import our mock implementation
 
 main = Blueprint('main', __name__)
 
