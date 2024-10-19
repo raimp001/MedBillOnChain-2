@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
             invoiceForm.addEventListener('submit', generateInvoice);
             // Add an initial service row
             addService();
+        } else {
+            console.error('One or more required elements not found for invoice creation');
         }
     }
 
@@ -19,6 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const invoiceList = document.getElementById('invoice-list');
         if (invoiceList) {
             // Add any invoice list specific functionality here
+        } else {
+            console.error('Invoice list element not found');
         }
     }
 
@@ -27,11 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
         handleInvoiceCreation();
     } else if (document.getElementById('invoice-list')) {
         handleInvoiceList();
+    } else {
+        console.log('Neither invoice form nor invoice list found on this page');
     }
 
     function addService() {
         const servicesList = document.getElementById('services-list');
-        if (!servicesList) return;
+        if (!servicesList) {
+            console.error('Services list not found');
+            return;
+        }
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td><input type="text" name="service" required></td>
@@ -45,7 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateInvoice(event) {
         event.preventDefault();
         const invoiceForm = document.getElementById('invoice-form');
-        if (!invoiceForm) return;
+        if (!invoiceForm) {
+            console.error('Invoice form not found');
+            return;
+        }
         const formData = new FormData(invoiceForm);
         const invoiceData = {
             patientName: formData.get('patient-name'),
@@ -77,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
@@ -96,7 +108,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // Make updateTotal function globally available
 window.updateTotal = function() {
     const totalSpan = document.getElementById('total');
-    if (!totalSpan) return;
+    if (!totalSpan) {
+        console.error('Total span not found');
+        return;
+    }
     const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
     const total = costs.reduce((sum, cost) => sum + cost, 0);
     totalSpan.textContent = total.toFixed(2);
@@ -105,4 +120,9 @@ window.updateTotal = function() {
 // Add error event listener to catch and log any unhandled errors
 window.addEventListener('error', function(event) {
     console.error('Unhandled error:', event.error);
+});
+
+// Add unhandled promise rejection listener
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled promise rejection:', event.reason);
 });
