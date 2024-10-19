@@ -1,23 +1,37 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const addServiceButton = document.getElementById('add-service');
-    const servicesList = document.getElementById('services-list');
-    const totalSpan = document.getElementById('total');
-    const invoiceForm = document.getElementById('invoice-form');
+    // Function to handle invoice creation
+    function handleInvoiceCreation() {
+        const addServiceButton = document.getElementById('add-service');
+        const servicesList = document.getElementById('services-list');
+        const totalSpan = document.getElementById('total');
+        const invoiceForm = document.getElementById('invoice-form');
 
-    if (addServiceButton && servicesList && totalSpan && invoiceForm) {
-        addServiceButton.addEventListener('click', addService);
-        invoiceForm.addEventListener('submit', generateInvoice);
-        // Add an initial service row
-        addService();
-    } else {
-        console.error('One or more required elements are missing from the DOM');
+        if (addServiceButton && servicesList && totalSpan && invoiceForm) {
+            addServiceButton.addEventListener('click', addService);
+            invoiceForm.addEventListener('submit', generateInvoice);
+            // Add an initial service row
+            addService();
+        }
+    }
+
+    // Function to handle invoice list
+    function handleInvoiceList() {
+        const invoiceList = document.getElementById('invoice-list');
+        if (invoiceList) {
+            // Add any invoice list specific functionality here
+        }
+    }
+
+    // Determine which page we're on and run the appropriate function
+    if (document.getElementById('invoice-form')) {
+        handleInvoiceCreation();
+    } else if (document.getElementById('invoice-list')) {
+        handleInvoiceList();
     }
 
     function addService() {
-        if (!servicesList) {
-            console.error('Services list element not found');
-            return;
-        }
+        const servicesList = document.getElementById('services-list');
+        if (!servicesList) return;
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td><input type="text" name="service" required></td>
@@ -30,17 +44,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function generateInvoice(event) {
         event.preventDefault();
-        if (!invoiceForm) {
-            console.error('Invoice form not found');
-            return;
-        }
+        const invoiceForm = document.getElementById('invoice-form');
+        if (!invoiceForm) return;
         const formData = new FormData(invoiceForm);
         const invoiceData = {
             patientName: formData.get('patient-name'),
             patientEmail: formData.get('patient-email'),
             patientAddress: formData.get('patient-address'),
             services: [],
-            total: parseFloat(totalSpan ? totalSpan.textContent : '0'),
+            total: parseFloat(document.getElementById('total').textContent || '0'),
             additionalNotes: formData.get('additional-notes')
         };
 
@@ -84,10 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Make updateTotal function globally available
 window.updateTotal = function() {
     const totalSpan = document.getElementById('total');
-    if (!totalSpan) {
-        console.error('Total span element not found');
-        return;
-    }
+    if (!totalSpan) return;
     const costs = Array.from(document.getElementsByName('cost')).map(input => parseFloat(input.value) || 0);
     const total = costs.reduce((sum, cost) => sum + cost, 0);
     totalSpan.textContent = total.toFixed(2);

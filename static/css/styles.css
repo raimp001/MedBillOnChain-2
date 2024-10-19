@@ -1,3 +1,4 @@
+
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -75,7 +76,7 @@ th {
     background-color: #f8f8f8;
 }
 
-.add-service-btn {
+.add-service-btn, .create-invoice-button {
     background-color: #ffffff;
     color: #000000;
     border: 2px solid #000000;
@@ -86,9 +87,10 @@ th {
     display: inline-flex;
     align-items: center;
     transition: background-color 0.3s, color 0.3s;
+    text-decoration: none;
 }
 
-.add-service-btn:hover {
+.add-service-btn:hover, .create-invoice-button:hover {
     background-color: #000000;
     color: #ffffff;
 }
@@ -139,17 +141,88 @@ th {
     font-weight: bold;
 }
 
-.pay-button {
+.pay-button, .view-button {
     background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
+    padding: 5px 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 5px;
 }
 
-.pay-button:hover {
-    background-color: #45a049;
+.view-button {
+    background-color: #008CBA;
+}
+
+.pay-button:hover, .view-button:hover {
+    opacity: 0.8;
+}
+
+nav {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.flash-message {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.flash-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.invoices-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.invoices-table th,
+.invoices-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.invoices-table th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+}
+
+.invoices-table tr:hover {
+    background-color: #f5f5f5;
 }

@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify, current_app
+
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, current_app, flash
 from models import Invoice, Service
 from app import db
 import logging
@@ -8,7 +9,12 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
     logging.debug("Index route accessed")
-    return redirect(url_for('main.create_invoice'))
+    return redirect(url_for('main.invoices_list'))
+
+@main.route('/invoices')
+def invoices_list():
+    invoices = Invoice.query.all()
+    return render_template('invoices_list.html', invoices=invoices)
 
 @main.route('/invoice/<int:invoice_id>')
 def invoice(invoice_id):
@@ -49,10 +55,12 @@ def create_invoice():
 
             db.session.commit()
             current_app.logger.info(f"Invoice created successfully: {new_invoice.id}")
+            flash('Invoice created successfully', 'success')
             return jsonify({'success': True, 'invoice_id': new_invoice.id}), 201
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"Error creating invoice: {str(e)}")
+            flash('Error creating invoice. Please try again.', 'error')
             return jsonify({'error': str(e)}), 400
 
     return render_template('create_invoice.html')
@@ -62,6 +70,7 @@ def pay_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     invoice.status = 'Paid'
     db.session.commit()
+    flash('Invoice paid successfully', 'success')
     return redirect(url_for('main.invoice', invoice_id=invoice_id))
 
 @main.route('/api/invoices', methods=['GET'])

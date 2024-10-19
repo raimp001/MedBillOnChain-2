@@ -1,0 +1,38 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="invoice-container">
+    <h2 class="invoice-title">Invoices List</h2>
+    <table class="invoices-table">
+        <thead>
+            <tr>
+                <th>Invoice ID</th>
+                <th>Patient Name</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.id }}</td>
+                <td>{{ invoice.patient_name }}</td>
+                <td>${{ "%.2f"|format(invoice.amount) }}</td>
+                <td>{{ invoice.status }}</td>
+                <td>
+                    <a href="{{ url_for('main.invoice', invoice_id=invoice.id) }}" class="view-button">View</a>
+                    {% if invoice.status == 'Pending' %}
+                    <form action="{{ url_for('main.pay_invoice', invoice_id=invoice.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="pay-button">Pay</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('main.create_invoice') }}" class="create-invoice-button">Create New Invoice</a>
+</div>
+{% endblock %}
