@@ -1,19 +1,19 @@
-from flask import Blueprint, request, jsonify
-from coinbase_onchain_kit import CoinbaseOnchainKit
+# Mock implementation of CoinbaseOnchainKit
+class CoinbaseOnchainKit:
+    def __init__(self, network="testnet"):
+        self.network = network
 
-crypto = Blueprint('crypto', __name__)
+    def create_payment(self, amount, currency):
+        # Mock payment creation
+        return {
+            'id': 'mock_payment_id',
+            'address': '0x1234567890abcdef',
+            'amount': amount,
+            'currency': currency
+        }
+
+    def check_payment_status(self, payment_id):
+        # Mock payment status check
+        return 'completed'
 
 onchain_kit = CoinbaseOnchainKit(network="testnet")
-
-@crypto.route('/create_payment', methods=['POST'])
-def create_payment():
-    amount = request.json['amount']
-    currency = request.json['currency']
-    
-    payment = onchain_kit.create_payment(amount, currency)
-    return jsonify(payment)
-
-@crypto.route('/check_payment/<payment_id>', methods=['GET'])
-def check_payment(payment_id):
-    status = onchain_kit.check_payment_status(payment_id)
-    return jsonify({"status": status})
