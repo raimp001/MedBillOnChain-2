@@ -43,6 +43,58 @@
     <form action="{{ url_for('main.pay_invoice', invoice_id=invoice.id) }}" method="POST">
         <button type="submit" class="pay-button">Pay Invoice</button>
     </form>
+    <button onclick="initiateCryptoPayment({{ invoice.id }})" class="crypto-pay-button">Pay with Cryptocurrency</button>
+    {% endif %}
+
+    {% if invoice.status == 'Pending Crypto Payment' %}
+    <div id="crypto-payment-info">
+        <p><strong>Payment Address:</strong> <span id="payment-address"></span></p>
+        <p><strong>Payment Amount:</strong> <span id="payment-amount"></span> <span id="payment-currency"></span></p>
+        <button onclick="checkCryptoPayment({{ invoice.id }})" class="check-payment-button">Check Payment Status</button>
+    </div>
     {% endif %}
 </div>
+
+<script>
+function initiateCryptoPayment(invoiceId) {
+    fetch(`/crypto_payment/${invoiceId}`, {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('payment-address').textContent = data.payment_address;
+            document.getElementById('payment-amount').textContent = data.payment_amount;
+            document.getElementById('payment-currency').textContent = data.payment_currency;
+            document.getElementById('crypto-payment-info').style.display = 'block';
+            alert('Crypto payment initiated. Please send the payment to the provided address.');
+        } else {
+            alert('Error initiating crypto payment: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while initiating the crypto payment.');
+    });
+}
+
+function checkCryptoPayment(invoiceId) {
+    fetch(`/check_crypto_payment/${invoiceId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Payment status: ' + data.status);
+            if (data.status === 'completed') {
+                location.reload();
+            }
+        } else {
+            alert('Error checking payment status: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while checking the payment status.');
+    });
+}
+</script>
 {% endblock %}
