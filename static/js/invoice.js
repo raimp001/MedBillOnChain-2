@@ -26,13 +26,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Function to handle individual invoice view
+    function handleIndividualInvoice() {
+        const invoiceContainer = document.querySelector('.invoice-container');
+        if (invoiceContainer) {
+            console.log('Individual invoice view detected');
+            // Add any individual invoice view specific functionality here
+        } else {
+            console.error('Invoice container not found');
+        }
+    }
+
     // Determine which page we're on and run the appropriate function
     if (document.getElementById('invoice-form')) {
         handleInvoiceCreation();
     } else if (document.getElementById('invoice-list')) {
         handleInvoiceList();
+    } else if (document.querySelector('.invoice-container')) {
+        handleIndividualInvoice();
     } else {
-        console.log('Neither invoice form nor invoice list found on this page');
+        console.log('Current page does not require specific invoice JavaScript functionality');
     }
 
     function addService() {
