@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+<<<<<<< HEAD
 {% block content %}
 <div class="invoice-container">
     <h2 class="invoice-title">Invoice #{{ invoice.id }}</h2>
@@ -27,10 +28,50 @@
                     <td>${{ "%.2f"|format(service.cost) }}</td>
                 </tr>
                 {% endfor %}
+=======
+{% block title %}Invoice - {{ record.patient_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-indigo-800 mb-2">Invoice</h1>
+            <p class="text-gray-600">Invoice #{{ record.id }}</p>
+        </div>
+        <div class="text-right">
+            <p class="text-xl font-semibold text-indigo-700">Medical Billing App</p>
+            <p class="text-gray-600">123 Health Street</p>
+            <p class="text-gray-600">Medicity, MC 12345</p>
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-2 text-indigo-700">Patient Information</h2>
+        <p><strong>Name:</strong> {{ record.patient_name }}</p>
+        <p><strong>Medical Record Number:</strong> {{ record.medical_record_number }}</p>
+        <p><strong>Date:</strong> {{ record.date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-2 text-indigo-700">Service Details</h2>
+        <table class="w-full">
+            <thead>
+                <tr class="bg-indigo-100">
+                    <th class="py-2 px-4 text-left">Description</th>
+                    <th class="py-2 px-4 text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="py-2 px-4">{{ record.service_description }}</td>
+                    <td class="py-2 px-4 text-right">${{ "%.2f"|format(record.amount) }}</td>
+                </tr>
+>>>>>>> 4f1f7c5e7f715f091f389ef2d62c17c137af8757
             </tbody>
         </table>
     </div>
 
+<<<<<<< HEAD
     <div class="total-section">
         <p><strong>Total: ${{ "%.2f"|format(invoice.amount) }}</strong></p>
     </div>
@@ -97,4 +138,33 @@ function checkCryptoPayment(invoiceId) {
     });
 }
 </script>
+=======
+    <div class="mb-8">
+        <p class="text-xl font-bold text-right">Total Amount Due: <span class="text-indigo-700">${{ "%.2f"|format(record.amount) }}</span></p>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-2 text-indigo-700">Payment Options</h2>
+        {% if not record.paid %}
+            <button onclick="initiatePayment({{ record.id }}, {{ record.amount }})" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300">
+                Pay with Cryptocurrency
+            </button>
+            <div class="mt-4">
+                <p class="font-semibold">Supported Cryptocurrencies:</p>
+                <ul class="list-disc list-inside pl-4 text-gray-600">
+                    <li>USDC (USD Coin)</li>
+                    <li>ETH (Ethereum)</li>
+                    <li>BTC (Bitcoin)</li>
+                    <li>DOGE (Dogecoin)</li>
+                </ul>
+            </div>
+        {% else %}
+            <p class="text-green-600 font-bold">Paid</p>
+            {% if record.payment_currency %}
+                <p>Paid with: {{ record.payment_currency }}</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+>>>>>>> 4f1f7c5e7f715f091f389ef2d62c17c137af8757
 {% endblock %}

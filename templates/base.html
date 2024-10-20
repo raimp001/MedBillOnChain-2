@@ -1,18 +1,21 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Billing App</title>
+    <title>{% block title %}Medical Billing App{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://commerce.coinbase.com/v1/checkout.js"></script>
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="{{ url_for('main.invoices_list') }}">Invoices</a></li>
-            <li><a href="{{ url_for('main.create_invoice') }}">Create Invoice</a></li>
-        </ul>
+        <div class="container">
+            <a href="/" class="logo">Medical Billing App</a>
+            <ul>
+                <li><a href="{{ url_for('main.invoices_list') }}">Invoices</a></li>
+                <li><a href="{{ url_for('main.create_invoice') }}">Create Invoice</a></li>
+            </ul>
+        </div>
     </nav>
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -24,10 +27,13 @@
         </div>
         {% endif %}
         {% endwith %}
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </div>
-
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Medical Billing App. All rights reserved.</p>
+        </div>
+    </footer>
     <script src="{{ url_for('static', filename='js/invoice.js') }}"></script>
 </body>
 </html>

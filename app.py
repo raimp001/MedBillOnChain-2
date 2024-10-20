@@ -28,3 +28,9 @@ def create_app():
         app.register_blueprint(main_blueprint)
 
     return app
+
+# Create the app instance
+app = create_app()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

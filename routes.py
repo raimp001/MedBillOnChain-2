@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, jsonif
 from models import Invoice, Service
 from app import db
 import logging
-from crypto import onchain_kit  # Import our mock implementation
+from crypto import onchain_kit
 
 main = Blueprint('main', __name__)
 
@@ -68,6 +68,7 @@ def create_invoice():
 def pay_invoice(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     invoice.status = 'Paid'
+    invoice.paid = True
     db.session.commit()
     flash('Invoice paid successfully', 'success')
     return redirect(url_for('main.invoice', invoice_id=invoice_id))
@@ -89,7 +90,6 @@ def crypto_payment(invoice_id):
     try:
         payment = onchain_kit.create_payment(str(invoice.amount), 'USD')
         
-        # Update the invoice with the payment information
         invoice.crypto_payment_id = payment['id']
         invoice.crypto_payment_address = payment['address']
         invoice.crypto_payment_amount = payment['amount']
@@ -120,6 +120,7 @@ def check_crypto_payment(invoice_id):
         
         if payment_status == 'completed':
             invoice.status = 'Paid'
+            invoice.paid = True
             db.session.commit()
         
         return jsonify({

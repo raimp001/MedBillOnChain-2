@@ -1,0 +1,169 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+
+export default function MedicalBillingComponent() {
+  const [paymentMethod, setPaymentMethod] = useState("credit_card")
+  const [cryptoCurrency, setCryptoCurrency] = useState("btc")
+  const [services, setServices] = useState([
+    { id: 1, name: "General Consultation", cost: 150, icd10: "Z00.00" },
+    { id: 2, name: "Blood Test", cost: 75, icd10: "Z01.7" },
+    { id: 3, name: "X-Ray", cost: 200, icd10: "Z01.89" },
+    { id: 4, name: "Prescription", cost: 50, icd10: "Z76.0" },
+  ])
+  const [newService, setNewService] = useState({ name: "", cost: "", icd10: "" })
+
+  const total = services.reduce((sum, service) => sum + service.cost, 0)
+
+  const addService = () => {
+    if (newService.name && newService.cost && newService.icd10) {
+      setServices([...services, { id: services.length + 1, ...newService, cost: parseFloat(newService.cost) }])
+      setNewService({ name: "", cost: "", icd10: "" })
+    }
+  }
+
+  return (
+    <Card className="w-full max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+      <CardHeader className="bg-blue-500 text-white">
+        <CardTitle className="text-2xl">Bill Summary</CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        <div className="space-y-6">
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold text-gray-800">Services</h3>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Add Service</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Add New Service</DialogTitle>
+                    <DialogDescription>
+                      Enter the details of the new service including the ICD-10 code.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="name" className="text-right">
+                        Name
+                      </Label>
+                      <Input
+                        id="name"
+                        value={newService.name}
+                        onChange={(e) => setNewService({ ...newService, name: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cost" className="text-right">
+                        Cost
+                      </Label>
+                      <Input
+                        id="cost"
+                        type="number"
+                        value={newService.cost}
+                        onChange={(e) => setNewService({ ...newService, cost: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="icd10" className="text-right">
+                        ICD-10
+                      </Label>
+                      <Input
+                        id="icd10"
+                        value={newService.icd10}
+                        onChange={(e) => setNewService({ ...newService, icd10: e.target.value })}
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" onClick={addService}>Add Service</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <ul className="space-y-2">
+              {services.map((service) => (
+                <li key={service.id} className="flex justify-between text-gray-700">
+                  <span>{service.name} (ICD-10: {service.icd10})</span>
+                  <span>${service.cost.toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 pt-4 border-t flex justify-between font-semibold text-gray-800">
+              <span>Total Due:</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">Payment Method</h3>
+            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="credit_card" id="credit_card" />
+                <Label htmlFor="credit_card" className="text-gray-700">Credit Card</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="bank_transfer" id="bank_transfer" />
+                <Label htmlFor="bank_transfer" className="text-gray-700">Bank Transfer</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="crypto" id="crypto" />
+                <Label htmlFor="crypto" className="text-gray-700">Cryptocurrency</Label>
+              </div>
+            </RadioGroup>
+          </div>
+          {paymentMethod === "crypto" && (
+            <div>
+              <Label htmlFor="crypto_select" className="text-gray-700">Select Cryptocurrency</Label>
+              <Select value={cryptoCurrency} onValueChange={setCryptoCurrency}>
+                <SelectTrigger id="crypto_select" className="w-full mt-1">
+                  <SelectValue placeholder="Select Cryptocurrency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="btc">Bitcoin (BTC)</SelectItem>
+                  <SelectItem value="eth">Ethereum (ETH)</SelectItem>
+                  <SelectItem value="usdt">Tether (USDT)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="payment_details" className="text-gray-700">
+              {paymentMethod === "credit_card"
+                ? "Card Number"
+                : paymentMethod === "bank_transfer"
+                ? "Account Number"
+                : "Wallet Address"}
+            </Label>
+            <Input
+              id="payment_details"
+              placeholder={
+                paymentMethod === "credit_card"
+                  ? "Enter your card number"
+                  : paymentMethod === "bank_transfer"
+                  ? "Enter your account number"
+                  : "Enter your wallet address"
+              }
+              className="w-full"
+            />
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="bg-gray-50">
+        <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white" onClick={() => alert("Payment processed successfully!")}>
+          Pay ${total.toFixed(2)}
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}

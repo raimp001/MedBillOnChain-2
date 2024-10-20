@@ -17,6 +17,7 @@ args = "Start Flask App"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
+<<<<<<< HEAD
 args = "Git Operations"
 
 [[workflows.workflow.tasks]]
@@ -34,6 +35,17 @@ args = "Git Commit"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Git Push"
+=======
+args = "Create Migration"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Apply Migration"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build React App"
+>>>>>>> 4f1f7c5e7f715f091f389ef2d62c17c137af8757
 
 [[workflows.workflow]]
 name = "Start Flask App"
@@ -48,7 +60,11 @@ args = "python main.py"
 waitForPort = 5000
 
 [[workflows.workflow]]
+<<<<<<< HEAD
 name = "Git Operations"
+=======
+name = "Create Migration"
+>>>>>>> 4f1f7c5e7f715f091f389ef2d62c17c137af8757
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -56,10 +72,17 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+<<<<<<< HEAD
 args = "git add ."
 
 [[workflows.workflow]]
 name = "Apply Migrations"
+=======
+args = "flask db migrate -m 'Add payment_currency to BillingRecord'"
+
+[[workflows.workflow]]
+name = "Apply Migration"
+>>>>>>> 4f1f7c5e7f715f091f389ef2d62c17c137af8757
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -70,7 +93,11 @@ task = "shell.exec"
 args = "flask db upgrade"
 
 [[workflows.workflow]]
+<<<<<<< HEAD
 name = "Git Stage Changes"
+=======
+name = "Build React App"
+>>>>>>> 4f1f7c5e7f715f091f389ef2d62c17c137af8757
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -78,6 +105,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+<<<<<<< HEAD
 args = "git add ."
 
 [[workflows.workflow]]
@@ -101,6 +129,9 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "git push origin main"
+=======
+args = "npm run build-react"
+>>>>>>> 4f1f7c5e7f715f091f389ef2d62c17c137af8757
 
 [deployment]
 run = ["sh", "-c", "python main.py"]
